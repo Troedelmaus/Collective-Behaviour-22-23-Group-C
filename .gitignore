@@ -1,0 +1,11 @@
+.idea/
+VadereAnnotation/target/
+VadereGui/target/
+VadereManager/manager.iml
+VadereManager/target/
+VadereMeshing/target/
+VadereSimulator/simulator.iml
+VadereSimulator/target/
+VadereState/state.iml
+VadereState/target/
+VadereUtils/target/
