@@ -9,3 +9,5 @@ VadereSimulator/target/
 VadereState/state.iml
 VadereState/target/
 VadereUtils/target/
+log.out
+Scenarios/*/*/output/

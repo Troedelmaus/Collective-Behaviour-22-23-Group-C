@@ -1,0 +1,50 @@
+package org.vadere.simulator.models.ocean.behaviour;
+
+import org.vadere.simulator.models.ocean.PedestrianOcean;
+import org.vadere.simulator.models.ocean.OceanSteeringModel;
+import org.vadere.util.geometry.shapes.VPoint;
+import org.vadere.util.geometry.shapes.Vector2D;
+
+public class Seek {
+
+	private OceanSteeringModel model;
+
+	public Seek(OceanSteeringModel model) {
+		this.model = model;
+	}
+
+	public Vector2D nextStep(double simTime, Vector2D currentMov, PedestrianOcean ped) {
+		double maxSpeed = ped.getAttributes().getSpeedDistributionMean();
+		double simTimeStepLength = 0.4; // TODO [priority=low] [task=refactoring] get this attribute from AttributePedestrians
+
+		VPoint pos = ped.getPosition();
+		// VPoint target = model.getScenario().getTargets().get(0).getShape().closestPoint(pos);
+		VPoint target = model.getScenario().getTarget(ped.getTargets().getFirst()).getShape().closestPoint(pos);
+		Vector2D toTarget = new Vector2D(target.subtract(pos));
+		Vector2D mov = toTarget.clone();
+
+		// Cap to max speed
+		mov = mov.normalize(maxSpeed);
+
+		// Accelerate
+		double startTime = ped.getStartTime();
+		double pastTime = startTime < 0 ? 0 : simTime - ped.getStartTime();
+		if (pastTime < simTimeStepLength + simTimeStepLength * 0.1) {
+			mov.normalize(maxSpeed / 2);
+		}
+
+		// Arrive
+		double stepsUntilTarget = 3;
+		double distToTarget = toTarget.getLength();
+		double slowed;
+		if (distToTarget < maxSpeed * stepsUntilTarget) {
+			slowed = distToTarget / stepsUntilTarget + maxSpeed * 0.1;
+			if (mov.getLength() > slowed) {
+				mov = mov.normalize(slowed);
+			}
+		}
+
+		return mov;
+	}
+
+}
