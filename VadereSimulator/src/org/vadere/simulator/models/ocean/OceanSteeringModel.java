@@ -80,7 +80,7 @@ public class OceanSteeringModel implements MainModel {
 			mov = mov.add(bWander.nextStep(simTimeInSec, mov, ped));//doesnt do anything
 			mov = mov.add(bCollisionAvoidance.nextStep(simTimeInSec, mov, ped));
 			mov = mov.add(bWallAvoidance.nextStep(simTimeInSec, mov, ped));//doesnt do anything
-			mov = mov.add(bSeparation.nextStep(simTimeInSec, mov, ped));
+			mov = mov.add(bSeparation.nextStep(simTimeInSec, mov, ped));//moves in opposit direction of close pedestrians
 			mov = mov.add(bContainment.nextStep(simTimeInSec, mov, ped));
 
 			// if movement is faster than max speed,

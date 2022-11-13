@@ -14,6 +14,7 @@ public class PedestrianOcean extends Pedestrian {
 
 	private Vector2D lastMovement;
 	private List<Double> oceanValues;
+
 	private double startTime;
 	private double lastSimTimeInSec;
 

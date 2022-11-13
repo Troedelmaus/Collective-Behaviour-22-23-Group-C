@@ -1,5 +1,5 @@
 {
-  "name" : "Reynolds_test_displaced",
+  "name" : "Ocean_displaced",
   "description" : "",
   "release" : "2.4",
   "processWriters" : {
@@ -55,7 +55,7 @@
     "isWriteMetaData" : false
   },
   "scenario" : {
-    "mainModel" : "org.vadere.simulator.models.reynolds.ReynoldsSteeringModel",
+    "mainModel" : "org.vadere.simulator.models.ocean.OceanSteeringModel",
     "attributesModel" : {
       "org.vadere.state.attributes.models.AttributesReynolds" : { }
     },

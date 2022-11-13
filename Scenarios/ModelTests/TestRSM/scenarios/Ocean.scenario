@@ -1,12 +1,12 @@
 {
-  "name" : "Reynolds_test_displaced",
+  "name" : "Ocean",
   "description" : "",
   "release" : "2.4",
   "processWriters" : {
     "files" : [ {
       "type" : "org.vadere.simulator.projects.dataprocessing.outputfile.EventtimePedestrianIdOutputFile",
       "filename" : "postvis.traj",
-      "processors" : [ 6, 7 ]
+      "processors" : [ 7, 8 ]
     }, {
       "type" : "org.vadere.simulator.projects.dataprocessing.outputfile.PedestrianIdOutputFile",
       "filename" : "waitingTimes.txt",
@@ -19,6 +19,10 @@
       "type" : "org.vadere.simulator.projects.dataprocessing.outputfile.NoDataKeyOutputFile",
       "filename" : "out1.txt",
       "processors" : [ 4 ]
+    }, {
+      "type" : "org.vadere.simulator.projects.dataprocessing.outputfile.PedestrianIdOutputFile",
+      "filename" : "trajectories.txt",
+      "processors" : [ 6 ]
     } ],
     "processors" : [ {
       "type" : "org.vadere.simulator.projects.dataprocessing.processor.PedestrianWaitingTimeProcessor",
@@ -45,17 +49,20 @@
         "pedestrianOverlapProcessorId" : 3
       }
     }, {
-      "type" : "org.vadere.simulator.projects.dataprocessing.processor.FootStepProcessor",
+      "type" : "org.vadere.simulator.projects.dataprocessing.processor.PedestrianTrajectoryProcessor",
       "id" : 6
     }, {
-      "type" : "org.vadere.simulator.projects.dataprocessing.processor.FootStepTargetIDProcessor",
+      "type" : "org.vadere.simulator.projects.dataprocessing.processor.FootStepProcessor",
       "id" : 7
+    }, {
+      "type" : "org.vadere.simulator.projects.dataprocessing.processor.FootStepTargetIDProcessor",
+      "id" : 8
     } ],
     "isTimestamped" : true,
     "isWriteMetaData" : false
   },
   "scenario" : {
-    "mainModel" : "org.vadere.simulator.models.reynolds.ReynoldsSteeringModel",
+    "mainModel" : "org.vadere.simulator.models.ocean.OceanSteeringModel",
     "attributesModel" : {
       "org.vadere.state.attributes.models.AttributesReynolds" : { }
     },
@@ -95,8 +102,8 @@
     "topography" : {
       "attributes" : {
         "bounds" : {
-          "x" : 10.0,
-          "y" : -15.0,
+          "x" : 0.0,
+          "y" : 0.0,
           "width" : 60.0,
           "height" : 20.0
         },
@@ -120,8 +127,8 @@
       "targets" : [ {
         "id" : 2,
         "shape" : {
-          "x" : 61.0,
-          "y" : -14.5,
+          "x" : 51.0,
+          "y" : 0.5,
           "width" : 8.5,
           "height" : 19.0,
           "type" : "RECTANGLE"
@@ -145,8 +152,8 @@
       "sources" : [ {
         "id" : 1,
         "shape" : {
-          "x" : 10.5,
-          "y" : -14.5,
+          "x" : 0.5,
+          "y" : 0.5,
           "width" : 9.5,
           "height" : 19.0,
           "type" : "RECTANGLE"
