@@ -27,21 +27,16 @@ public class OceanSteeringModel implements MainModel {
 	private Random random;
 	private Domain domain;
 
-	private Seek bSeek;
-	private Separation bSeparation;
-	private Containment bContainment;
-	private CollisionAvoidance bCollisionAvoidance;
-	private WallAvoidance bWallAvoidance;
-	private Wander bWander;
+	private Perception bPerception;
+	private Decision bDecision;
+	private Action bAction;
+
 	private List<Model> submodels;
 
 	public OceanSteeringModel() {
-		this.bSeek = new Seek(this);
-		this.bSeparation = new Separation(this);
-		this.bContainment = new Containment(this);
-		this.bCollisionAvoidance = new CollisionAvoidance(this);
-		this.bWallAvoidance = new WallAvoidance(this);
-		this.bWander = new Wander(this);
+		this.bPerception = new Perception(this);
+		//this.bDecision = new Decision(this);
+		//this.bAction = new Action(this);
 	}
 
 	@Override
@@ -75,17 +70,10 @@ public class OceanSteeringModel implements MainModel {
 		while (it.hasNext()) {
 			PedestrianOcean ped = (PedestrianOcean) it.next();
 			Vector2D mov = new Vector2D(0, 0);
-
-			mov = mov.add(bSeek.nextStep(simTimeInSec, mov, ped));//aims and accelerates ped to destiny
-			mov = mov.add(bWander.nextStep(simTimeInSec, mov, ped));//doesnt do anything
-			mov = mov.add(bCollisionAvoidance.nextStep(simTimeInSec, mov, ped));
-			mov = mov.add(bWallAvoidance.nextStep(simTimeInSec, mov, ped));//doesnt do anything
-			mov = mov.add(bSeparation.nextStep(simTimeInSec, mov, ped));//moves in opposit direction of close pedestrians
-			mov = mov.add(bContainment.nextStep(simTimeInSec, mov, ped));
+			//bDecision mit bPerception füttern
 
 			// if movement is faster than max speed,
 			// no normal movement is available, skip this turn.
-
 			if (mov.getLength() > maxSpeed) {
 				mov = new Vector2D(0, 0);
 			}
@@ -157,6 +145,7 @@ public class OceanSteeringModel implements MainModel {
 	}
 
 
+
 	public double[] trapezoid4(double value, double a, double b, double c, double d ){
 		double[] memberships = {0.0,0.0,0.0};
 		if(value <= a){
@@ -182,6 +171,5 @@ public class OceanSteeringModel implements MainModel {
 		}
 		return memberships;
 	}
-
 
 }

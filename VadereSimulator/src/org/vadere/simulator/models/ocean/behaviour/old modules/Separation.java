@@ -58,7 +58,7 @@ public class Separation {
 		// it will wait (skip the turn) and try again.
 
 		// If still in collision, negate current movement and stand still
-		it = peds.iterator();
+		/*it = peds.iterator();
 		while (it.hasNext()) {
 			p = it.next();
 			if (p.getId() == self.getId()) {
@@ -69,7 +69,7 @@ public class Separation {
 			if (dist.getLength() < 2 * radius) {
 				return currentMov.multiply(-1);
 			}
-		}
+		}*/
 
 		return mov;
 	}

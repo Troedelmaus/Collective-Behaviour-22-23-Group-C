@@ -16,7 +16,7 @@ public class WallAvoidance {
 		this.model = model;
 	}
 
-	public Vector2D nextStep(double simTime, Vector2D currentMov, PedestrianOcean self) {
+	/*public Vector2D nextStep(double simTime, Vector2D currentMov, PedestrianOcean self) {
 
 		//double radius = self.getAttributes().getRadius();
 		//Collection<Obstacle> walls = model.getScenario().getObstacles();
@@ -34,7 +34,7 @@ public class WallAvoidance {
 		} else{
 			//closestObstacle[0]
 			//TODO Evade Object... how to get VPoint to calc with & how to determine which way is shorter
-			
+
 		}
 		return mov;
 	}
@@ -52,5 +52,5 @@ public class WallAvoidance {
 		}
 
 		return result;
-	}
+	}*/
 }
