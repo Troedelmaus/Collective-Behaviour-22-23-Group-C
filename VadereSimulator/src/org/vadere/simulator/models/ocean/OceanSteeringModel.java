@@ -13,9 +13,11 @@ import org.vadere.state.psychology.cognition.UnsupportedSelfCategoryException;
 import org.vadere.state.scenario.DynamicElement;
 import org.vadere.state.scenario.Pedestrian;
 import org.vadere.state.scenario.Topography;
+import org.vadere.state.scenario.Obstacle;
 import org.vadere.util.geometry.shapes.VPoint;
 import org.vadere.util.geometry.shapes.VShape;
 import org.vadere.util.geometry.shapes.Vector2D;
+
 
 import java.util.*;
 
@@ -29,14 +31,14 @@ public class OceanSteeringModel implements MainModel {
 
 	private Perception bPerception;
 	private Decision bDecision;
-	private Action bAction;
 
 	private List<Model> submodels;
 
+	public List<Obstacle> obst;
+
 	public OceanSteeringModel() {
-		this.bPerception = new Perception(this);
+
 		//this.bDecision = new Decision(this);
-		//this.bAction = new Action(this);
 	}
 
 	@Override
@@ -47,6 +49,9 @@ public class OceanSteeringModel implements MainModel {
 		this.attributesPedestrian = attributesPedestrian;
 		this.domain = domain;
 		this.random = random;
+		this.bPerception = new Perception(this, domain);
+		this.bDecision = new Decision(this); // own logic
+		this.obst = bPerception.getObstacles(); //own logic
 
 		submodels = Collections.singletonList(this);
 
@@ -67,10 +72,21 @@ public class OceanSteeringModel implements MainModel {
 		Iterator<Pedestrian> it = pedestrians.iterator();
 		double maxSpeed = 3;
 
+
 		while (it.hasNext()) {
 			PedestrianOcean ped = (PedestrianOcean) it.next();
 			Vector2D mov = new Vector2D(0, 0);
+
+			//own logic
+			ArrayList<ArrayList<Vector2D>> pedInfo = bPerception.getPedInfo(ped);
+			ArrayList<Double> pedDists = bPerception.getObstacleDists(ped);
+
+			mov = mov.add(bDecision.seek(simTimeInSec, mov, ped));
+			mov = mov.add(bDecision.nextStep(simTimeInSec, mov, ped));
+
 			//bDecision mit bPerception füttern
+
+			//end own logic
 
 			// if movement is faster than max speed,
 			// no normal movement is available, skip this turn.
@@ -126,50 +142,4 @@ public class OceanSteeringModel implements MainModel {
 	public List<Model> getSubmodels() {
 		return submodels;
 	}
-
-
-	public double[] getNeighborDistMembership(double value){
-		return trapezoid4(value,6.0,12.0,18.0,24.0);
-	}
-	public double[] getMaxNeighborsMembership(double value){
-		return trapezoid4(value,10.0,20.0,30.0,40.0);
-	}
-	public double[] getTimeHorizonMembership(double value){
-		return trapezoid4(value,5.0,10.0,10.0,15.0);
-	}
-	public double[] getRadiusMembership(double value){
-		return trapezoid4(value,0.5,1.0,1.0,1.5);
-	}
-	public double[] getPrefVelocityMembership(double value){
-		return trapezoid4(value,10.0,20.0,30.0,40.0);
-	}
-
-
-
-	public double[] trapezoid4(double value, double a, double b, double c, double d ){
-		double[] memberships = {0.0,0.0,0.0};
-		if(value <= a){
-			memberships[0] = 1;//negative
-			memberships[1] = 0;//neutral
-			memberships[2] = 0;//positive
-		} else if (value < b) {
-			memberships[0] = (value*-1+b)/(b-a);//negative
-			memberships[1] = (value-a)/(b-a);//neutral
-			memberships[2] = 0;//positive
-		} else if (value <= c) {
-			memberships[0] = 0;//negative
-			memberships[1] = 1;//neutral
-			memberships[2] = 0;//positive
-		} else if (value < d) {
-			memberships[0] = 0;//negative
-			memberships[1] = (value*-1+d)/(c-d);//neutral
-			memberships[2] = (value-c)/(c-d);//positive
-		} else {
-			memberships[0] = 0;//negative
-			memberships[1] = 0;//neutral
-			memberships[2] = 1;//positive
-		}
-		return memberships;
-	}
-
 }

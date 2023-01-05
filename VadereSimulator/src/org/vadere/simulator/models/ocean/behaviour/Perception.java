@@ -22,7 +22,7 @@ public class Perception {
     private OceanSteeringModel model;
     private Domain domain;
 
-    public Perception(OceanSteeringModel model){
+    public Perception(OceanSteeringModel model, Domain domain){
         this.model = model;
         this.topography = domain.getTopography();
         this.peds = peds;
@@ -56,6 +56,7 @@ public class Perception {
         return pedInfo;
     }
     public List<Obstacle> getObstacles() {
+        //returns a List of all Obstacles
         Collection<Obstacle> obstacles = topography.getObstacles();
         List<Obstacle> result = new LinkedList<>();
         for (Obstacle obstacle : obstacles) {
@@ -64,6 +65,7 @@ public class Perception {
         return result;
     }
     public ArrayList<Double> getObstacleDists(PedestrianOcean self){
+        //returns a List of all distances between objects and one ped
         Vector2D pos = new Vector2D(self.getPosition());
         Collection<Obstacle> obstacles = topography.getObstacles();
         ArrayList<Double> result = new ArrayList<>();
