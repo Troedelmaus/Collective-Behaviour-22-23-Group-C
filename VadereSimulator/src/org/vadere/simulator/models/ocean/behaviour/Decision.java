@@ -4,12 +4,18 @@ import org.vadere.simulator.models.ocean.PedestrianOcean;
 import org.vadere.simulator.models.ocean.OceanSteeringModel;
 import org.vadere.state.scenario.Obstacle;
 import org.vadere.state.scenario.Pedestrian;
+import org.vadere.state.simulation.FootStep;
+import org.vadere.state.simulation.FootstepHistory;
 import org.vadere.util.geometry.shapes.Vector2D;
 import org.vadere.util.geometry.shapes.VPoint;
+import org.vadere.util.geometry.shapes.VLine;
+import org.vadere.util.geometry.shapes.VCircle;
+import org.vadere.util.geometry.shapes.VShape;
+import org.vadere.util.geometry.GeometryUtils;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+
+
+import java.util.*;
 
 public class Decision {
 
@@ -19,19 +25,38 @@ public class Decision {
         this.model = model;
     }
 
-    public Vector2D nextStep(double simTime, Vector2D currentMov, PedestrianOcean self) {
-        double radius = self.getAttributes().getRadius();
+    public Vector2D nextStep(double simTime, Vector2D currentMov, PedestrianOcean self, List<Pedestrian> percievedPeds) {
+        //https://github.com/snape/RVO2-Java , https://gamma.cs.unc.edu/ORCA/publications/ORCA.pdf , https://www.mathworks.com/help/fuzzy/types-of-fuzzy-inference-systems.html
+        double [] oceanValues = self.getOceanValues(); //NeighborDist; MaxNeighbors; TimeHorizon; Radius; PrefVelocity
+        double radius = oceanValues[3];
+        double speed;
+        double neighToIntersec;
+        double ownToIntersec;
 
-        Collection<Pedestrian> peds = model.getScenario().getElements(Pedestrian.class);
+        Collection<Pedestrian> peds = percievedPeds;
         Iterator<Pedestrian> it = peds.iterator();
         Pedestrian p;
+
+        List<Vector2D> neighborTrajectory = new ArrayList<>();
+        List<Vector2D> neighborPosition = new ArrayList<>();
+        List<VPoint> intersections = new ArrayList<>();
+        List<Pedestrian> intersectingPeds = new ArrayList<>();
+        List<Pedestrian> relevantIntersectingPeds = new ArrayList<>();
 
         Vector2D toNeighbor;
         Vector2D proj;
         Vector2D norm;
 
+        VPoint intersec;
+
+        VLine ownLine;
+        VLine neighLine;
+
+        FootstepHistory footstepHistory;
+        FootStep cfs;
+
         // Only avoid collisions, which would occur in front of us.
-        Vector2D pos = new Vector2D(self.getPosition().add(currentMov.normalize(radius)));
+        Vector2D pos = new Vector2D(self.getPosition().add(currentMov.normalize(radius))); // vector in direction of seek with length radius
         Vector2D mov = currentMov.sub(currentMov.normalize(radius));
 
         while (it.hasNext()) {
@@ -39,16 +64,8 @@ public class Decision {
             if (p.getId() == self.getId()) {
                 continue;
             }
-
-            // get vector from pedestrian to neighbor
-            toNeighbor = new Vector2D(p.getPosition().subtract(pos));
-
-            // skip neighbor farer away than current movement
-            if (toNeighbor.getLength() > mov.getLength()) {
-                continue;
-            }
-
             // project toNeighbor to current movement
+            toNeighbor = new Vector2D(p.getPosition().subtract(pos));
             proj = mov.multiply(
                     (mov.x * toNeighbor.x + mov.y * toNeighbor.y)
                             / (Math.pow(mov.x, 2) + Math.pow(mov.y, 2)));
@@ -59,31 +76,132 @@ public class Decision {
                     (proj.y < 0 && mov.y > 0 || proj.y > 0 && mov.y < 0)) {
                 continue;
             }
-
-            // get normal from neighbor to current movement
-            // if it is more than twice the pedestrian radius, the neighbor
-            // is not in our way, continue
-            norm = toNeighbor.sub(proj);
-            if (norm.getLength() > 2 * radius) {
-                continue;
-            }
-
             // if projection is shorter than twice the ped radius, our neighbor is too
             // close, we have to skip our current movement
-            if (proj.getLength() < 2 * radius) {
+            if (proj.getLength() < radius) {
                 return mov.multiply(-1);
             }
-
-            // return difference between new and old movement as our correction vector
-            return proj.sub(mov);
+            footstepHistory = p.getFootstepHistory();
+            if (footstepHistory.size() != 0) {
+                /*double avgSpeed = footstepHistory.getAverageSpeedInMeterPerSecond();
+                FootStep cfs = footstepHistory.getYoungestFootStep();
+                neighborTrajectory.add((new Vector2D(cfs.getEnd().getX() - cfs.getStart().getX(), cfs.getEnd().getY() - cfs.getStart().getY())).normalize(avgSpeed * oceanValues[2]));*/
+                //first uses avg Speed, second uses speed of last step
+                cfs = footstepHistory.getYoungestFootStep();
+                speed = cfs.length()/cfs.duration();
+                neighborTrajectory.add((new Vector2D(cfs.getEnd().getX() - cfs.getStart().getX(), cfs.getEnd().getY() - cfs.getStart().getY())).normalize(speed * oceanValues[2]));
+                neighborPosition.add(new Vector2D(p.getPosition()));
+                intersectingPeds.add(p);
+            }
         }
+        if(neighborTrajectory.size() == 0){
+            return new Vector2D(0, 0);
+        }
+        Iterator<Vector2D> itTrajectory = neighborTrajectory.iterator();
+        Iterator<Vector2D> itPosition = neighborPosition.iterator();
+        it = intersectingPeds.iterator();
+        Vector2D neighTraj;
+        Vector2D neighPos;
 
-        // No correction needed
+        Vector2D ownTraj = currentMov;
+        Vector2D ownPos = new Vector2D(self.getPosition());
+
+
+        while(itTrajectory.hasNext()) {
+            neighTraj = itTrajectory.next();
+            neighPos = itPosition.next();
+            p = it.next();
+
+            ownLine = new VLine(ownPos.x,ownPos.y,ownPos.x+ownTraj.x,ownPos.y+ownTraj.y);
+            neighLine = new VLine(neighPos.x,neighPos.y,neighPos.x+neighTraj.x,neighPos.y+neighTraj.y);
+
+            if(GeometryUtils.intersectLine(ownLine, new VPoint(neighPos.x,neighPos.y), new VPoint(neighPos.x+neighTraj.x,neighPos.y+neighTraj.y))){
+                if(GeometryUtils.intersectLine(neighLine, new VPoint(ownPos.x,ownPos.y), new VPoint(ownPos.x+ownTraj.x,ownPos.y+ownTraj.y))) {
+                    intersec = new VPoint(GeometryUtils.intersectionPoint(ownLine,neighLine));
+                    neighToIntersec = intersec.distance(p.getPosition())/(neighTraj.getLength()/oceanValues[2]);
+                    ownToIntersec = intersec.distance(self.getPosition())/oceanValues[4];
+                    if(neighToIntersec-ownToIntersec < 0.5 && ownToIntersec-neighToIntersec < 0.5){
+                        intersections.add(intersec);
+                        relevantIntersectingPeds.add(p);
+                    }
+                }
+            }
+        }
+        if(intersections.size() == 0){
+            return new Vector2D(0, 0);
+        }
+        Iterator<VPoint> itInter = intersections.iterator();
+        it = relevantIntersectingPeds.iterator();
+        Pedestrian mostSignificantNeigh = it.next();
+        double distIntersec = itInter.next().distance(self.getPosition());
+        while(it.hasNext()) {
+            p = it.next();
+            intersec = itInter.next();
+            if(distIntersec>intersec.distance(self.getPosition())){
+                mostSignificantNeigh = p;
+                distIntersec = intersec.distance(self.getPosition());
+            }
+        }
+        cfs = mostSignificantNeigh.getFootstepHistory().getYoungestFootStep();
+        mov = (new Vector2D(cfs.getEnd().getX() - cfs.getStart().getX(), cfs.getEnd().getY() - cfs.getStart().getY())).normalize(currentMov.getLength());
+        // return difference between new and old movement as our correction vector
+        return mov.sub(currentMov);
+    }
+
+    public Vector2D objectEvasion(double simTimeInSec, Vector2D currentMov, PedestrianOcean ped, List<Obstacle> obst){
+        VPoint pos = ped.getPosition();
+        Vector2D posVec = new Vector2D(ped.getPosition());
+        VPoint posFut = new VPoint((posVec.add(currentMov)).x,(posVec.add(currentMov)).y);
+        VShape closestIntersectingShape = null;
+        double dist = 0;
+        for (Obstacle obstacle : obst) {
+            if(obstacle.getShape().intersects(new VLine(pos,posFut))){
+                if(obstacle.getShape().getCentroid().distance(pos)>obstacle.getShape().getCentroid().distance(posFut))
+                    if(closestIntersectingShape == null){
+                        closestIntersectingShape = obstacle.getShape();
+                        dist = obstacle.getShape().distance(pos);
+                    } else if(dist > obstacle.getShape().distance(pos)){
+                        closestIntersectingShape = obstacle.getShape();
+                        dist = obstacle.getShape().distance(pos);
+                    }
+            }
+        }
+        if(closestIntersectingShape == null){
+            return new Vector2D(0, 0);
+        }
+        VCircle circle = closestIntersectingShape.getCircumCircle();
+        if (circle.contains(pos)){
+            Vector2D mov = (new Vector2D(pos.x-circle.getCenter().x,pos.y-circle.getCenter().y)).normalize((ped.getOceanValues())[4]);
+            return mov.sub(currentMov);
+        } else if(circle.contains(posFut)){
+            List<VPoint> path = circle.getPath();
+            List<Double> pointDist = new ArrayList<>();
+
+            for(int i = 0; i<path.size();i++){
+                pointDist.add(pos.distance(path.get(i)));
+            }
+            int indexOfMinimum = pointDist.indexOf(Collections.min(pointDist));
+            double closest1 = pointDist.get(indexOfMinimum);
+            VPoint closestP1 = path.get(indexOfMinimum);
+            pointDist.remove(indexOfMinimum);
+            path.remove(indexOfMinimum);
+            double closest2 = pointDist.get(indexOfMinimum);
+            VPoint closestP2 = path.get(indexOfMinimum);
+            double angle1 =currentMov.angleTo(closestP1);
+            double angle2 =currentMov.angleTo(closestP2);
+            if(angle1 <= angle2){
+                Vector2D mov = (new Vector2D(closestP1.x-pos.x,closestP1.y-pos.y)).normalize((ped.getOceanValues())[4]);
+                return mov.sub(currentMov);
+            }
+            Vector2D mov = (new Vector2D(closestP2.x-pos.x,closestP2.y-pos.y)).normalize((ped.getOceanValues())[4]);
+            return mov.sub(currentMov);
+        }
         return new Vector2D(0, 0);
     }
 
     public Vector2D seek(double simTime, Vector2D currentMov, PedestrianOcean ped) {
-        double maxSpeed = ped.getAttributes().getSpeedDistributionMean();
+        double [] oceanValues = ped.getOceanValues();
+        double maxSpeed = oceanValues[4];
         double simTimeStepLength = 0.4; // TODO [priority=low] [task=refactoring] get this attribute from AttributePedestrians
 
         VPoint pos = ped.getPosition();
@@ -115,45 +233,5 @@ public class Decision {
 
         return mov;
     }
-    public double[] getNeighborDistMembership(double value){
-        return trapezoid4(value,6.0,12.0,18.0,24.0);
-    }
-    public double[] getMaxNeighborsMembership(double value){
-        return trapezoid4(value,10.0,20.0,30.0,40.0);
-    }
-    public double[] getTimeHorizonMembership(double value){
-        return trapezoid4(value,5.0,10.0,10.0,15.0);
-    }
-    public double[] getRadiusMembership(double value){
-        return trapezoid4(value,0.5,1.0,1.0,1.5);
-    }
-    public double[] getPrefVelocityMembership(double value){
-        return trapezoid4(value,1.2,1.45,1.45,1.7);
-    }
 
-    public double[] trapezoid4(double value, double a, double b, double c, double d ){
-        double[] memberships = {0.0,0.0,0.0};
-        if(value <= a){
-            memberships[0] = 1;//negative
-            memberships[1] = 0;//neutral
-            memberships[2] = 0;//positive
-        } else if (value < b) {
-            memberships[0] = (value*-1+b)/(b-a);//negative
-            memberships[1] = (value-a)/(b-a);//neutral
-            memberships[2] = 0;//positive
-        } else if (value <= c) {
-            memberships[0] = 0;//negative
-            memberships[1] = 1;//neutral
-            memberships[2] = 0;//positive
-        } else if (value < d) {
-            memberships[0] = 0;//negative
-            memberships[1] = (value*-1+d)/(c-d);//neutral
-            memberships[2] = (value-c)/(c-d);//positive
-        } else {
-            memberships[0] = 0;//negative
-            memberships[1] = 0;//neutral
-            memberships[2] = 1;//positive
-        }
-        return memberships;
-    }
 }

@@ -18,60 +18,64 @@ public class Perception {
 
 
     private final transient Topography topography;
-    private Collection<Pedestrian> peds;
     private OceanSteeringModel model;
-    private Domain domain;
+
 
     public Perception(OceanSteeringModel model, Domain domain){
         this.model = model;
         this.topography = domain.getTopography();
-        this.peds = peds;
     }
 
-    public ArrayList<ArrayList<Vector2D>> getPedInfo(PedestrianOcean self) {
-        //returns a 2D Array of 2DVectors: 1. vector of position of neighbor,
-        //                                 2. vector from self to neighbor (self+2=1)
-        //                                 3. velocity of neighbor
-        peds = model.getScenario().getElements(Pedestrian.class);
+    public List<Pedestrian> getPedInfo(PedestrianOcean self){
+        double [] oceanValues = self.getOceanValues(); //NeighborDist CHECK; MaxNeighbors CHECK; TimeHorizon ; Radius CHECK; PrefVelocity CHECK
+        Collection<Pedestrian> peds = model.getScenario().getElements(Pedestrian.class);
         Iterator<Pedestrian> it = peds.iterator();
-
-        ArrayList<ArrayList<Vector2D>> pedInfo = new ArrayList<>();
+        Iterator<Pedestrian> itTmp;
         Vector2D pos = new Vector2D(self.getPosition());
         Pedestrian p;
+        Pedestrian pp;
+        ArrayList<Double> distToNeighbor = new ArrayList<>();
+        List<Pedestrian> percievedPeds = new ArrayList<Pedestrian>();
+        double max;
         while (it.hasNext()) {
 
             p = it.next();
-            if (p.getId() == self.getId()) {
-                continue;
-            }
             Vector2D pedPos = new Vector2D(p.getPosition());
             Vector2D toNeighbor = new Vector2D(p.getPosition().subtract(pos));
             Vector2D pedVel = new Vector2D(p.getVelocity());
-            ArrayList<Vector2D> tmpList = new ArrayList<Vector2D>();
-            tmpList.add(pedPos);
-            tmpList.add(toNeighbor);
-            tmpList.add(pedVel);
-            pedInfo.add(tmpList);
+            if (p.getId() == self.getId() || toNeighbor.getLength() <= oceanValues[0]) {
+                continue;
+            }
+            percievedPeds.add(p);
+            if(percievedPeds.size()>oceanValues[1]){
+                itTmp = percievedPeds.iterator();
+                distToNeighbor.removeAll(distToNeighbor);
+                while (itTmp.hasNext()) {
+                    pp = itTmp.next();
+                    distToNeighbor.add((new Vector2D(pp.getPosition().subtract(pos))).getLength());
+                }
+                itTmp = percievedPeds.iterator();
+                Collections.sort(distToNeighbor);
+                max = distToNeighbor.get(distToNeighbor.size() - 1);
+                while (itTmp.hasNext()){
+                    pp = itTmp.next();
+                    if((new Vector2D(pp.getPosition().subtract(pos))).getLength() == max){
+                        percievedPeds.remove(pp);
+                        break;
+                    }
+                }
+            }
         }
-        return pedInfo;
+        return percievedPeds;
+
     }
+
     public List<Obstacle> getObstacles() {
         //returns a List of all Obstacles
         Collection<Obstacle> obstacles = topography.getObstacles();
         List<Obstacle> result = new LinkedList<>();
         for (Obstacle obstacle : obstacles) {
             result.add(obstacle);
-        }
-        return result;
-    }
-    public ArrayList<Double> getObstacleDists(PedestrianOcean self){
-        //returns a List of all distances between objects and one ped
-        Vector2D pos = new Vector2D(self.getPosition());
-        Collection<Obstacle> obstacles = topography.getObstacles();
-        ArrayList<Double> result = new ArrayList<>();
-        for (Obstacle obstacle : obstacles) {
-            double tmpDist = obstacle.getShape().distance(pos);
-            result.add(tmpDist);
         }
         return result;
     }

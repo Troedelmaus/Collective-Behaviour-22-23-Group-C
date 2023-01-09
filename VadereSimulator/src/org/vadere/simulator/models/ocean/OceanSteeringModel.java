@@ -78,11 +78,11 @@ public class OceanSteeringModel implements MainModel {
 			Vector2D mov = new Vector2D(0, 0);
 
 			//own logic
-			ArrayList<ArrayList<Vector2D>> pedInfo = bPerception.getPedInfo(ped);
-			ArrayList<Double> pedDists = bPerception.getObstacleDists(ped);
+			List<Pedestrian> percievedPeds = bPerception.getPedInfo(ped);
 
 			mov = mov.add(bDecision.seek(simTimeInSec, mov, ped));
-			mov = mov.add(bDecision.nextStep(simTimeInSec, mov, ped));
+			mov = mov.add(bDecision.objectEvasion(simTimeInSec, mov, ped, obst));
+			mov = mov.add(bDecision.nextStep(simTimeInSec, mov, ped, percievedPeds));
 
 			//bDecision mit bPerception füttern
 
