@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.vadere.simulator.models.MainModel;
 import org.vadere.simulator.models.bhm.BehaviouralHeuristicsModel;
+import org.vadere.simulator.models.biocrowds.AttributesBioCrowd;
+import org.vadere.simulator.models.biocrowds.BioCrowd;
 import org.vadere.simulator.models.bmm.BiomechanicsModel;
 import org.vadere.simulator.models.gnm.GradientNavigationModel;
 import org.vadere.simulator.models.osm.OptimalStepsModel;
@@ -73,6 +75,11 @@ public class ModelPresets {
 		list.clear();
 		list.add(AttributesReynolds.class);
 		registerModelPreset(ReynoldsSteeringModel.class, list);
+
+		// BioCrowd Model
+		list.clear();
+		list.add(AttributesBioCrowd.class);
+		registerModelPreset(BioCrowd.class, list);
 
 		// Behavioural Heuristics Model
 		list.clear();
