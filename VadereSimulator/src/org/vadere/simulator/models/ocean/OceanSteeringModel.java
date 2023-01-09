@@ -81,8 +81,8 @@ public class OceanSteeringModel implements MainModel {
 			List<Pedestrian> percievedPeds = bPerception.getPedInfo(ped);
 
 			mov = mov.add(bDecision.seek(simTimeInSec, mov, ped));
-			mov = mov.add(bDecision.objectEvasion(simTimeInSec, mov, ped, obst));
 			mov = mov.add(bDecision.nextStep(simTimeInSec, mov, ped, percievedPeds));
+			mov = mov.add(bDecision.objectEvasion(simTimeInSec, mov, ped, obst));
 
 			//bDecision mit bPerception füttern
 

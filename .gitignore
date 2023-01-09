@@ -11,3 +11,4 @@ VadereState/target/
 VadereUtils/target/
 log.out
 Scenarios/*/*/output/
+Scenarios/*/output/

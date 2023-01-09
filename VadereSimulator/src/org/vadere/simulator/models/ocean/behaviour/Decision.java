@@ -152,49 +152,47 @@ public class Decision {
         VPoint pos = ped.getPosition();
         Vector2D posVec = new Vector2D(ped.getPosition());
         VPoint posFut = new VPoint((posVec.add(currentMov)).x,(posVec.add(currentMov)).y);
+
         VShape closestIntersectingShape = null;
         double dist = 0;
         for (Obstacle obstacle : obst) {
-            if(obstacle.getShape().intersects(new VLine(pos,posFut))){
-                if(obstacle.getShape().getCentroid().distance(pos)>obstacle.getShape().getCentroid().distance(posFut))
-                    if(closestIntersectingShape == null){
-                        closestIntersectingShape = obstacle.getShape();
-                        dist = obstacle.getShape().distance(pos);
-                    } else if(dist > obstacle.getShape().distance(pos)){
-                        closestIntersectingShape = obstacle.getShape();
-                        dist = obstacle.getShape().distance(pos);
-                    }
+            VLine pathLine = new  VLine(pos,new VPoint((posVec.add(currentMov.multiply(10))).x,(posVec.add(currentMov.multiply(10))).y));
+            if(obstacle.getShape().intersects(pathLine)) {
+                if (closestIntersectingShape == null) {
+                    closestIntersectingShape = obstacle.getShape();
+                    dist = obstacle.getShape().distance(pos);
+                } else if (dist > obstacle.getShape().distance(pos)) {
+                    closestIntersectingShape = obstacle.getShape();
+                    dist = obstacle.getShape().distance(pos);
+                }
             }
         }
         if(closestIntersectingShape == null){
             return new Vector2D(0, 0);
         }
-        VCircle circle = closestIntersectingShape.getCircumCircle();
-        if (circle.contains(pos)){
-            Vector2D mov = (new Vector2D(pos.x-circle.getCenter().x,pos.y-circle.getCenter().y)).normalize((ped.getOceanValues())[4]);
-            return mov.sub(currentMov);
-        } else if(circle.contains(posFut)){
-            List<VPoint> path = circle.getPath();
-            List<Double> pointDist = new ArrayList<>();
 
-            for(int i = 0; i<path.size();i++){
-                pointDist.add(pos.distance(path.get(i)));
+        if(closestIntersectingShape.distance(pos)<(ped.getOceanValues())[4]+0.1){
+            Vector2D mov = currentMov;
+            if(pos.x<closestIntersectingShape.getCentroid().x){
+                //ped is left of center
+                while(true){
+                    mov = mov.rotate(Math.PI*2 - Math.PI/6);
+                    if(closestIntersectingShape.contains(new VPoint(mov.add(posVec).x,mov.add(posVec).y))){
+                        continue;
+                    } else {
+                        return mov.sub(currentMov);
+                    }
+                }
+            } else {
+                while(true){
+                    mov = mov.rotate(Math.PI/6);
+                    if(closestIntersectingShape.contains(new VPoint(mov.add(posVec).x,mov.add(posVec).y))){
+                        continue;
+                    } else {
+                        return mov.sub(currentMov);
+                    }
+                }
             }
-            int indexOfMinimum = pointDist.indexOf(Collections.min(pointDist));
-            double closest1 = pointDist.get(indexOfMinimum);
-            VPoint closestP1 = path.get(indexOfMinimum);
-            pointDist.remove(indexOfMinimum);
-            path.remove(indexOfMinimum);
-            double closest2 = pointDist.get(indexOfMinimum);
-            VPoint closestP2 = path.get(indexOfMinimum);
-            double angle1 =currentMov.angleTo(closestP1);
-            double angle2 =currentMov.angleTo(closestP2);
-            if(angle1 <= angle2){
-                Vector2D mov = (new Vector2D(closestP1.x-pos.x,closestP1.y-pos.y)).normalize((ped.getOceanValues())[4]);
-                return mov.sub(currentMov);
-            }
-            Vector2D mov = (new Vector2D(closestP2.x-pos.x,closestP2.y-pos.y)).normalize((ped.getOceanValues())[4]);
-            return mov.sub(currentMov);
         }
         return new Vector2D(0, 0);
     }
