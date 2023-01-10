@@ -131,7 +131,7 @@
           "height" : 6.0,
           "type" : "RECTANGLE"
         },
-        "visible" : true
+        "visible" : false
       } ],
       "stairs" : [ ],
       "targets" : [ {

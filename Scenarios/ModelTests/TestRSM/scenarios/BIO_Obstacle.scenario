@@ -127,6 +127,26 @@
           "type" : "RECTANGLE"
         },
         "visible" : true
+      }, {
+        "id" : 5,
+        "shape" : {
+          "x" : 11.5,
+          "y" : 0.0,
+          "width" : 0.5,
+          "height" : 35.0,
+          "type" : "RECTANGLE"
+        },
+        "visible" : true
+      }, {
+        "id" : 6,
+        "shape" : {
+          "x" : 0.0,
+          "y" : 0.0,
+          "width" : 0.5,
+          "height" : 35.0,
+          "type" : "RECTANGLE"
+        },
+        "visible" : true
       } ],
       "measurementAreas" : [ {
         "id" : 1,
@@ -137,7 +157,7 @@
           "height" : 6.0,
           "type" : "RECTANGLE"
         },
-        "visible" : true
+        "visible" : false
       } ],
       "stairs" : [ ],
       "targets" : [ {
