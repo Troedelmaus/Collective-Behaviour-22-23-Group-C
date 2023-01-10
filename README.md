@@ -1,12 +1,22 @@
 # Collective-Behaviour-22-23-Group-C
 Repository for group work in Collective Behaviour 22/23
 
-We aim to quantitively evaluate and compare different psychological crowd modelling algorithms through the systematic exploration of  state of the art modelling techniques. 
-The number of models to explore will be arbitrary, as our approach will be based on iteratively analysing and evaluating each model. Our starting point will be a fuzzy logic-based model, replicating OCEAN personality crowds, published in 2020 by https://www.mdpi.com/2073-8994/9/10/239.
+We aim to quantitively evaluate and compare different psychological crowd modelling algorithms through the systematic exploration of state of the art Crowd Simulation models. 
+Our first fuzzy logic-based model, replicating OCEAN personality crowds, published in 2020 by https://www.mdpi.com/2073-8994/9/10/239. The Model we compare it with is based upon the BioCrowds algorithm and adds a Personality layer https://repositorio.pucrs.br/dspace/bitstream/10923/14148/2/Simulating_Crowds_with_OCEAN_Personality_Traits.pdf.
 Each model will be analysed on both a conceptual level and a practical level. All models will perform the same tasks and be evaluated on similar metrics, thus creating both a systematic review and an quantitative result comparison.
-Regarding the technologies used, provided each model might have different technological requirements, it is possible that we change our technology stack for different model implementations, keeping in mind the integral computational differences and dependencies between programming languages and frameworks.
-As of today, there aren't many review papers in the are of psychological crowds modelling. We expect our results to have an impact in comparing different state of the art proposed models and that our thorough analysis and comparison can hopefully guide others towards an informed model choice in this hot topic.
-For Implementation of the models we started working in Vadere. The following is the documentation of Vadere from https://gitlab.lrz.de/vadere/vadere:
+All development and experimentation are conducted using Vadere. Vadere is an open-
+source framework for the simulation of pedestrian and crowd dynamics. Its GUI pro-
+vides a toolset to create topographies, alter hyperparameters and output measure-
+ments of its simulations. Quantitatively, Vadere can measure the overlaps of the pedes-
+trians, their wait times and other values. The simulation setups and validation metrics
+are described below in Simulation and Validation.
+The reviewed models are implemented inside Vadere. Its core is a simula-
+tion loop that calculates the movement of several pedestrians depending on the given
+targets, topography, and a locomotion model. Vadere integrates several locomotion
+models, which typically consist of a module that extends upon Vadere’s default pedes-
+trian object definition and a module that moves the pedestrians called the "steering
+model". The relation between the simulation loop and the steering model is depicted
+in Figure 1.The following is the documentation of Vadere from https://gitlab.lrz.de/vadere/vadere:
 
 ---
 
