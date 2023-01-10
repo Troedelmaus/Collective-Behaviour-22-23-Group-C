@@ -107,9 +107,9 @@
       "obstacles" : [ {
         "id" : 3,
         "shape" : {
-          "x" : 0.0,
+          "x" : -12.0,
           "y" : 17.0,
-          "width" : 38.0,
+          "width" : 50.0,
           "height" : 3.0,
           "type" : "RECTANGLE"
         },
@@ -119,7 +119,7 @@
         "shape" : {
           "x" : 42.0,
           "y" : 17.0,
-          "width" : 38.0,
+          "width" : 50.0,
           "height" : 3.0,
           "type" : "RECTANGLE"
         },

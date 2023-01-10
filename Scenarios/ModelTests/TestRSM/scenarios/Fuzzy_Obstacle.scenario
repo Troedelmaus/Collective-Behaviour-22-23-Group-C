@@ -172,7 +172,7 @@
         "targetIds" : [ 4 ],
         "spawner" : {
           "type" : "org.vadere.state.attributes.spawner.AttributesRegularSpawner",
-          "constraintsElementsMax" : -1,
+          "constraintsElementsMax" : 200,
           "constraintsTimeStart" : 0.0,
           "constraintsTimeEnd" : 0.0,
           "eventPositionRandom" : true,

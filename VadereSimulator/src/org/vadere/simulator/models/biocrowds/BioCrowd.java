@@ -133,7 +133,6 @@ public class BioCrowd implements MainModel {
         UnsupportedSelfCategoryException.throwIfPedestriansNotTargetOrientied(current_pedestrians, this.getClass());
 
         Iterator<Pedestrian> it = current_pedestrians.iterator();
-        double maxSpeed = 0.5;
 
 //        ArrayList<Vector2D> taken_markers = new ArrayList<Vector2D>();
 
@@ -155,6 +154,7 @@ public class BioCrowd implements MainModel {
             Vector2D toTarget = new Vector2D(target.subtract(pos));
 
             mov = mov.add(displacement.nextStep(simTimeInSec, mov, ped));
+            mov = mov.add(angular_variance(mov,ped));
             mov = mov.add(avoid(mov,ped,obstacles));
             //move a pedestrian
             ped.move(simTimeInSec, mov);
@@ -251,7 +251,13 @@ public class BioCrowd implements MainModel {
         }
         return new Vector2D(0, 0);
     }
-    public List<Obstacle> getObstacles() {
+    public Vector2D angular_variance( Vector2D currentMov, PedestrianBioCrowd ped) {
+        if(ped.angular_var < 0){
+            return currentMov.rotate(Math.PI * 2 - ped.angular_var).sub(currentMov);
+        }
+        return currentMov.rotate(ped.angular_var).sub(currentMov);
+    }
+        public List<Obstacle> getObstacles() {
         //returns a List of all Obstacles
         Collection<Obstacle> obstacles = domain.getTopography().getObstacles();
         List<Obstacle> result = new LinkedList<>();

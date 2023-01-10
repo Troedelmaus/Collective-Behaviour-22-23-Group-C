@@ -37,7 +37,12 @@ public class PedestrianOcean extends Pedestrian {
 
 		this.oceanValues = new double[5];
 		for (int i = 0; i < 5; i++) {
-			oceanValues[i] = ((random.nextDouble() - 0.5) * 200); //Openness, Conscientiousness, Extroversion, Agreeableness and Neuroticism
+			if(i==4){
+				oceanValues[i] = ((random.nextDouble() - 1) * 100); //Openness, Conscientiousness, Extroversion, Agreeableness and Neuroticism
+			} else{
+				oceanValues[i] = ((random.nextDouble() - 0.5) * 200); //Openness, Conscientiousness, Extroversion, Agreeableness and Neuroticism
+			}
+			//oceanValues[i] = ((random.nextDouble() - 0.5) * 200); //Openness, Conscientiousness, Extroversion, Agreeableness and Neuroticism
 		}
 		this.memberO = initializeMembersip(oceanValues[0]);
 		this.memberC = initializeMembersip(oceanValues[1]);

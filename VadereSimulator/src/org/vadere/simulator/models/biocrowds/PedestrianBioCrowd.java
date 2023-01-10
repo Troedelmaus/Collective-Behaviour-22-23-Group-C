@@ -18,7 +18,11 @@ public class PedestrianBioCrowd extends Pedestrian {
 
     private final ArrayList<Vector2D> markers;
     private final ArrayList<Double> weights;
-    private final double max_speed;
+
+    private double[] oceanValues;
+    public double max_speed;
+    public double angular_var;
+    public double impatience;
 
     public boolean isDone() {
         return done;
@@ -41,12 +45,22 @@ public class PedestrianBioCrowd extends Pedestrian {
         this.size = 2;
         this.markers = new ArrayList<Vector2D>();
         this.weights = new ArrayList<Double>();
-        this.max_speed = 0.05;
         this.done = false;
         this.lastMovement = new Vector2D(0, 0);
         this.lastSimTimeInSec = -1;
         this.target = target;
-
+        this.oceanValues = new double[5];
+        for (int i = 0; i < 5; i++) {
+            if(i==4){
+            	oceanValues[i] = ((random.nextDouble() *0.5 /*- 1*/)); //Openness, Conscientiousness, Extroversion, Agreeableness and Neuroticism
+            } else{
+            	oceanValues[i] = random.nextDouble(); //Openness, Conscientiousness, Extroversion, Agreeableness and Neuroticism
+            }
+            //oceanValues[i] = random.nextDouble(); //Openness, Conscientiousness, Extroversion, Agreeableness and Neuroticism
+        }
+        this.max_speed = oceanValues[2]+1;
+        this.angular_var = (oceanValues[0]-0.5);
+        this.impatience = 0.1*oceanValues[2]+0.45*(1-oceanValues[1])+0.45*(1-oceanValues[3]);
     }
 
     public double getStartTime() {

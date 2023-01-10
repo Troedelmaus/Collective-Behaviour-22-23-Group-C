@@ -16,8 +16,7 @@ public class Displacement {
 	}
 
 	public Vector2D nextStep(double simTime, Vector2D currentMov, PedestrianBioCrowd ped) {
-//		double maxSpeed = ped.getAttributes().getSpeedDistributionMean();
-		double maxSpeed = 1.0;
+		double maxSpeed = ped.max_speed;
 		double radius = 2.0;
 		ArrayList<Vector2D> markers = ped.getMarkers();
 
@@ -49,7 +48,9 @@ public class Displacement {
 			motionVector = motionVector.add(dist.multiply(weights.get(i)));
 		}
 
-		final double speed = Math.min(motionVector.getLength(), maxSpeed);
+		final double speed = Math.min(motionVector.getLength()*1/ped.impatience, maxSpeed);
+
+
 
 		final Vector2D disp = motionVector.multiply(1/motionVector.getLength()).multiply(speed);
 
