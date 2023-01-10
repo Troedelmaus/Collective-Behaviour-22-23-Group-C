@@ -1,6 +1,7 @@
 # Collective-Behaviour-22-23-Group-C
 Repository for group work in Collective Behaviour 22/23
 
+
 We aim to quantitively evaluate and compare different psychological crowd modelling algorithms through the systematic exploration of state of the art Crowd Simulation models. 
 Our first fuzzy logic-based model, replicating OCEAN personality crowds, published in 2020 by https://www.mdpi.com/2073-8994/9/10/239. The Model we compare it with is based upon the BioCrowds algorithm and adds a Personality layer https://repositorio.pucrs.br/dspace/bitstream/10923/14148/2/Simulating_Crowds_with_OCEAN_Personality_Traits.pdf.
 Each model will be analysed on both a conceptual level and a practical level. All models will perform the same tasks and be evaluated on similar metrics, thus creating both a systematic review and an quantitative result comparison.
@@ -15,13 +16,14 @@ tion loop that calculates the movement of several pedestrians depending on the g
 targets, topography, and a locomotion model. Vadere integrates several locomotion
 models, which typically consist of a module that extends upon Vadere’s default pedes-
 trian object definition and a module that moves the pedestrians called the "steering
-model". The relation between the simulation loop and the steering model is depicted
-in Figure 1.
+model".
+
 ---
 
 ![](https://github.com/Troedelmaus/Collective-Behaviour-22-23-Group-C/blob/main/simulationRun.gif)
 
 ---
+
 The following is the documentation of Vadere from https://gitlab.lrz.de/vadere/vadere:
 
 ---
