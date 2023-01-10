@@ -1,5 +1,5 @@
 {
-  "name" : "exit_Room",
+  "name" : "obstacle_BioCrowd",
   "description" : "",
   "release" : "2.4",
   "processWriters" : {
@@ -93,9 +93,9 @@
       }
     },
     "attributesSimulation" : {
-      "finishTime" : 200.0,
+      "finishTime" : 100.0,
       "simTimeStepLength" : 0.4,
-      "realTimeSimTimeRatio" : 0.0,
+      "realTimeSimTimeRatio" : 0.4,
       "writeSimulationData" : true,
       "visualizationEnabled" : true,
       "printFPS" : false,
@@ -130,60 +130,20 @@
         "bounds" : {
           "x" : 0.0,
           "y" : 0.0,
-          "width" : 35.0,
-          "height" : 20.0
+          "width" : 12.0,
+          "height" : 35.0
         },
         "boundingBoxWidth" : 0.5,
         "bounded" : true,
         "referenceCoordinateSystem" : null
       },
       "obstacles" : [ {
-        "id" : 5,
+        "id" : 3,
         "shape" : {
-          "x" : 9.0,
-          "y" : 3.0,
-          "width" : 1.0,
-          "height" : 11.9,
-          "type" : "RECTANGLE"
-        },
-        "visible" : true
-      }, {
-        "id" : 6,
-        "shape" : {
-          "x" : 9.1,
-          "y" : 3.0,
-          "width" : 16.8,
-          "height" : 1.1,
-          "type" : "RECTANGLE"
-        },
-        "visible" : true
-      }, {
-        "id" : 7,
-        "shape" : {
-          "x" : 25.4,
-          "y" : 3.0,
-          "width" : 1.1,
-          "height" : 11.9,
-          "type" : "RECTANGLE"
-        },
-        "visible" : true
-      }, {
-        "id" : 8,
-        "shape" : {
-          "x" : 21.0,
-          "y" : 14.6,
-          "width" : 5.5,
-          "height" : 0.9,
-          "type" : "RECTANGLE"
-        },
-        "visible" : true
-      }, {
-        "id" : 9,
-        "shape" : {
-          "x" : 8.9,
-          "y" : 14.6,
-          "width" : 7.1,
-          "height" : 1.0,
+          "x" : 3.0,
+          "y" : 15.0,
+          "width" : 6.0,
+          "height" : 9.0,
           "type" : "RECTANGLE"
         },
         "visible" : true
@@ -191,52 +151,12 @@
       "measurementAreas" : [ ],
       "stairs" : [ ],
       "targets" : [ {
-        "id" : 1,
-        "shape" : {
-          "x" : 35.0,
-          "y" : 5.0,
-          "width" : 2.0,
-          "height" : 2.0,
-          "type" : "RECTANGLE"
-        },
-        "visible" : true,
-        "absorber" : {
-          "enabled" : true,
-          "deletionDistance" : 0.1
-        },
-        "waiter" : {
-          "enabled" : false,
-          "distribution" : null
-        },
-        "leavingSpeed" : -1.0,
-        "parallelEvents" : 0
-      }, {
         "id" : 4,
         "shape" : {
-          "x" : 31.0,
-          "y" : 1.0,
-          "width" : 3.3,
-          "height" : 10.0,
-          "type" : "RECTANGLE"
-        },
-        "visible" : true,
-        "absorber" : {
-          "enabled" : true,
-          "deletionDistance" : 0.1
-        },
-        "waiter" : {
-          "enabled" : false,
-          "distribution" : null
-        },
-        "leavingSpeed" : 0.0,
-        "parallelEvents" : 0
-      }, {
-        "id" : 10,
-        "shape" : {
-          "x" : 15.0,
-          "y" : 15.5,
-          "width" : 7.5,
-          "height" : 1.5,
+          "x" : 1.0,
+          "y" : 30.0,
+          "width" : 10.0,
+          "height" : 3.0,
           "type" : "RECTANGLE"
         },
         "visible" : true,
@@ -258,14 +178,14 @@
       "sources" : [ {
         "id" : 2,
         "shape" : {
-          "x" : 14.159523809523806,
-          "y" : 3.973809523809524,
-          "width" : 6.792857142857146,
-          "height" : 1.204761904761905,
+          "x" : 1.0,
+          "y" : 1.0,
+          "width" : 10.0,
+          "height" : 5.0,
           "type" : "RECTANGLE"
         },
         "visible" : true,
-        "targetIds" : [ 10 ],
+        "targetIds" : [ 4 ],
         "spawner" : {
           "type" : "org.vadere.state.attributes.spawner.AttributesRegularSpawner",
           "constraintsElementsMax" : -1,

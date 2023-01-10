@@ -10,25 +10,28 @@ public class AttributesBioCrowd extends Attributes {
 
     public VPoint target;
 
-    public ArrayList<Vector2D> getMarkers() {
+    public ArrayList<Vector2D> getMarkers(double w, double h) {
+        ScatterMarkers(w,h);
         return markers;
+    }
+    public void setTarget(VPoint t){
+        target=t;
     }
 
     private final ArrayList<Vector2D> markers;
 
     public AttributesBioCrowd() {
         this.markers = new ArrayList<Vector2D>();
-        this.target = new VPoint(14.5, 23.1);
-        ScatterMarkers();
+        this.target = new VPoint(0, 0);
     }
 
-    private void ScatterMarkers() {
+    private void ScatterMarkers(double width,double height) {
 
-        int x_min = 7;
-        int x_max = 22;
+        int x_min = 0;
+        int x_max = (int)width;
 
-        int y_min = 7;
-        int y_max = 22;
+        int y_min = 0;
+        int y_max = (int)height;
 
         for (int i = 0; i < 100; i++){
             double random_x = Math.random() * (x_max - x_min + 1) + x_min;

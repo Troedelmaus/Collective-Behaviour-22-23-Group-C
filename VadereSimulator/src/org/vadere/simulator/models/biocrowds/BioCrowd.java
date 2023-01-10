@@ -11,11 +11,13 @@ import org.vadere.state.attributes.Attributes;
 import org.vadere.state.attributes.scenario.AttributesAgent;
 import org.vadere.state.psychology.cognition.UnsupportedSelfCategoryException;
 import org.vadere.state.scenario.DynamicElement;
+import org.vadere.state.scenario.Obstacle;
 import org.vadere.state.scenario.Pedestrian;
 import org.vadere.state.scenario.Topography;
 import org.vadere.util.geometry.shapes.VPoint;
 import org.vadere.util.geometry.shapes.VShape;
 import org.vadere.util.geometry.shapes.Vector2D;
+import org.vadere.util.geometry.shapes.VLine;
 
 import java.util.*;
 
@@ -35,12 +37,16 @@ public class BioCrowd implements MainModel {
     private Displacement displacement;
     private VPoint target;
 
+    private List<Obstacle> obstacles;
+
     public BioCrowd() {
 //        this.markers = new ArrayList<Vector2D>();
         this.agents = new ArrayList();
         this.container = new ArrayList<>();
         this.bSeek = new Seek(this);
         this.displacement = new Displacement(this);
+        this.obstacles = new ArrayList<>();
+
 //        ScatterMarkers();
     }
 
@@ -102,8 +108,9 @@ public class BioCrowd implements MainModel {
         this.domain = domain;
         this.random = random;
         // markers are initialized here
-        this.markers = this.attributesBioCrowd.getMarkers();
-        this.target = this.attributesBioCrowd.target;
+        this.markers = this.attributesBioCrowd.getMarkers(domain.getTopography().getBounds().width,domain.getTopography().getBounds().height);
+        this.target = domain.getTopography().getTargetShapes().values().iterator().next().get(0).getCentroid();
+        this.obstacles = getObstacles();
 
         submodels = Collections.singletonList(this);
     }
@@ -147,47 +154,8 @@ public class BioCrowd implements MainModel {
             //a vector in a direction of target from pedestrian
             Vector2D toTarget = new Vector2D(target.subtract(pos));
 
-//            ArrayList<Vector2D> availableMarkers = new ArrayList<Vector2D>();
-//            for (Iterator<Vector2D> it2 = markers.iterator(); it2.hasNext();){
-//                Vector2D marker = it2.next();
-//                double radius = 2.0;
-//                if (marker.getY() > pos.getY() && marker.distance(pos) < radius){
-//                    availableMarkers.add(marker);
-//                }
-//            }
-
-//            mov = mov.add(bSeek.nextStep(simTimeInSec, mov, ped));
-            //adding a move to a 0,0 vector
             mov = mov.add(displacement.nextStep(simTimeInSec, mov, ped));
-//            mov = mov.add(bWander.nextStep(simTimeInSec, mov, ped));
-//            mov = mov.add(bCollisionAvoidance.nextStep(simTimeInSec, mov, ped));
-//            mov = mov.add(bWallAvoidance.nextStep(simTimeInSec, mov, ped));
-//            mov = mov.add(bSeparation.nextStep(simTimeInSec, mov, ped));
-//            mov = mov.add(bContainment.nextStep(simTimeInSec, mov, ped));
-
-            // if movement is faster than max speed,
-            // no normal movement is available, skip this turn.
-//            if (mov.getLength() > maxSpeed) {
-//                mov = new Vector2D(0, 0);
-//            }
-
-//            taken_markers.addAll(ped.getMarkers());
-//            ped.clearMarkers();
-//
-//            VPoint new_pos = ped.getPosition();
-//
-//            for (Iterator<Vector2D> it1 = markers.iterator(); it1.hasNext();){
-//                Vector2D marker = it1.next();
-//                double radius = 2.0;
-//                if (marker.distance(new_pos) < radius){
-//                    ped.addMarker(marker);
-//                    it1.remove();
-//                }
-//            }
-
-//            if (!ped.isDone()) {
-//                ped.move(simTimeInSec, mov);
-//            }
+            mov = mov.add(avoid(mov,ped,obstacles));
             //move a pedestrian
             ped.move(simTimeInSec, mov);
 
@@ -229,5 +197,67 @@ public class BioCrowd implements MainModel {
                 it1.remove();
             }
         }
+    }
+    public Vector2D avoid( Vector2D currentMov, PedestrianBioCrowd ped, List<Obstacle> obst){
+        try {
+            VPoint pos = ped.getPosition();
+            Vector2D posVec = new Vector2D(ped.getPosition());
+            VPoint posFut = new VPoint((posVec.add(currentMov)).x, (posVec.add(currentMov)).y);
+
+            VShape closestIntersectingShape = null;
+            double dist = 0;
+            for (Obstacle obstacle : obst) {
+                VLine pathLine = new VLine(pos, new VPoint((posVec.add(currentMov.multiply(10))).x, (posVec.add(currentMov.multiply(10))).y));
+
+                if (obstacle.getShape().intersects(pathLine)) {
+                    if (closestIntersectingShape == null) {
+                        closestIntersectingShape = obstacle.getShape();
+                        dist = obstacle.getShape().distance(pos);
+                    } else if (dist > obstacle.getShape().distance(pos)) {
+                        closestIntersectingShape = obstacle.getShape();
+                        dist = obstacle.getShape().distance(pos);
+                    }
+                }
+
+            }
+            if (closestIntersectingShape == null) {
+                return new Vector2D(0, 0);
+            }
+
+            if (closestIntersectingShape.distance(pos) < (attributesPedestrian.getMaximumSpeed())) {
+                Vector2D mov = currentMov;
+                if (pos.x > closestIntersectingShape.getCentroid().x) {
+                    //ped is left of center
+                    while (true) {
+                        mov = mov.rotate(Math.PI * 2 - Math.PI / 20);
+                        if (closestIntersectingShape.contains(new VPoint(mov.add(posVec).x, mov.add(posVec).y))) {
+                            continue;
+                        } else {
+                            return mov.sub(currentMov);
+                        }
+                    }
+                } else {
+                    while (true) {
+                        mov = mov.rotate(Math.PI / 6);
+                        if (closestIntersectingShape.contains(new VPoint(mov.add(posVec).x, mov.add(posVec).y))) {
+                        } else {
+                            return mov.sub(currentMov);
+                        }
+                    }
+                }
+            }
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+        return new Vector2D(0, 0);
+    }
+    public List<Obstacle> getObstacles() {
+        //returns a List of all Obstacles
+        Collection<Obstacle> obstacles = domain.getTopography().getObstacles();
+        List<Obstacle> result = new LinkedList<>();
+        for (Obstacle obstacle : obstacles) {
+            result.add(obstacle);
+        }
+        return result;
     }
 }

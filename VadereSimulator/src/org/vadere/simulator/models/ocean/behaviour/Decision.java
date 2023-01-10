@@ -74,6 +74,7 @@ public class Decision {
             // behind us.
             if ((proj.x < 0 && mov.x > 0 || proj.x > 0 && mov.x < 0) ||
                     (proj.y < 0 && mov.y > 0 || proj.y > 0 && mov.y < 0)) {
+
                 continue;
             }
             // if projection is shorter than twice the ped radius, our neighbor is too
@@ -171,12 +172,12 @@ public class Decision {
             return new Vector2D(0, 0);
         }
 
-        if(closestIntersectingShape.distance(pos)<(ped.getOceanValues())[4]+0.1){
+        if(closestIntersectingShape.distance(pos)<(ped.getOceanValues())[4]){
             Vector2D mov = currentMov;
-            if(pos.x<closestIntersectingShape.getCentroid().x){
+            if(pos.x>closestIntersectingShape.getCentroid().x){
                 //ped is left of center
                 while(true){
-                    mov = mov.rotate(Math.PI*2 - Math.PI/6);
+                    mov = mov.rotate(Math.PI*2 - Math.PI/20);
                     if(closestIntersectingShape.contains(new VPoint(mov.add(posVec).x,mov.add(posVec).y))){
                         continue;
                     } else {

@@ -4,8 +4,12 @@ import org.vadere.simulator.models.biocrowds.BioCrowd;
 import org.vadere.simulator.models.biocrowds.PedestrianBioCrowd;
 import org.vadere.simulator.models.reynolds.PedestrianReynolds;
 import org.vadere.simulator.models.reynolds.ReynoldsSteeringModel;
+import org.vadere.state.scenario.Obstacle;
 import org.vadere.util.geometry.shapes.VPoint;
 import org.vadere.util.geometry.shapes.Vector2D;
+
+import java.util.Iterator;
+import java.util.List;
 
 public class Seek {
 
@@ -48,5 +52,6 @@ public class Seek {
 
 		return mov;
 	}
+
 
 }
