@@ -16,7 +16,13 @@ targets, topography, and a locomotion model. Vadere integrates several locomotio
 models, which typically consist of a module that extends upon Vadere’s default pedes-
 trian object definition and a module that moves the pedestrians called the "steering
 model". The relation between the simulation loop and the steering model is depicted
-in Figure 1.The following is the documentation of Vadere from https://gitlab.lrz.de/vadere/vadere:
+in Figure 1.
+---
+
+![](https://github.com/Troedelmaus/Collective-Behaviour-22-23-Group-C/blob/main/simulationRun.gif)
+
+---
+The following is the documentation of Vadere from https://gitlab.lrz.de/vadere/vadere:
 
 ---
 
